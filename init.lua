@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -129,7 +129,7 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
 -- Keep signcolumn on by default
-vim.opt.signcolumn = 'yes'
+vim.opt.signcolumn = 'number'
 
 -- Decrease update time
 vim.opt.updatetime = 250
@@ -255,7 +255,38 @@ require('lazy').setup({
       },
     },
   },
-
+  { 'catppuccin/nvim', name = 'catppuccin', priority = 1000 },
+  { 'ellisonleao/gruvbox.nvim', priority = 1000, config = true },
+  {
+    'nvim-tree/nvim-tree.lua',
+    version = '*',
+    lazy = false,
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      require('nvim-tree').setup {}
+    end,
+  },
+  {
+    'vhyrro/luarocks.nvim',
+    priority = 1001, -- this plugin needs to run before anything else
+    opts = {
+      rocks = { 'magick' },
+    },
+  },
+  {
+    '3rd/image.nvim',
+    dependencies = { 'luarocks.nvim' },
+    config = function()
+      -- ...
+    end,
+  },
+  {
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    config = true,
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -734,7 +765,9 @@ require('lazy').setup({
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
           ['<C-y>'] = cmp.mapping.confirm { select = true },
-
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+          ['<Tab>'] = cmp.mapping.select_next_item(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
           --['<CR>'] = cmp.mapping.confirm { select = true },
@@ -917,3 +950,67 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+
+vim.api.nvim_set_keymap('n', '<c-p>', ':Telescope find_files<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Tab>', ':+tabnext<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<S-Tab>', ':-tabnext<CR>', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('n', '<c-q>', ':w<CR>:sp term://bash<CR>:res 10<CR>i', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<c-q>', '<c-\\><c-n>', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('n', '<c-h>', '<c-w>h', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<c-j>', '<c-w>j', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<c-k>', '<c-w>k', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<c-l>', '<c-w>l', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('t', '<c-h>', '<c-\\><c-n><c-w>h', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<c-j>', '<c-\\><c-n><c-w>j', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<c-k>', '<c-\\><c-n><c-w>k', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<c-l>', '<c-\\><c-n><c-w>l', { noremap = true, silent = true })
+
+vim.api.nvim_set_hl(0, 'Comment', { fg = '#679fdc' })
+vim.api.nvim_set_hl(0, '@comment', { link = 'Comment' })
+vim.api.nvim_set_hl(0, 'LineNrAbove', { link = 'Comment' })
+vim.api.nvim_set_hl(0, 'LineNr', { link = 'Comment' })
+vim.api.nvim_set_hl(0, 'LineNrBelow', { link = 'Comment' })
+
+vim.api.nvim_set_option('clipboard', 'unnamed')
+
+require('image').setup {
+  backend = 'kitty',
+  integrations = {
+    markdown = {
+      enabled = true,
+      clear_in_insert_mode = false,
+      download_remote_images = true,
+      only_render_image_at_cursor = false,
+      filetypes = { 'markdown', 'vimwiki' }, -- markdown extensions (ie. quarto) can go here
+    },
+    neorg = {
+      enabled = true,
+      clear_in_insert_mode = false,
+      download_remote_images = true,
+      only_render_image_at_cursor = false,
+      filetypes = { 'norg' },
+    },
+    html = {
+      enabled = false,
+    },
+    css = {
+      enabled = false,
+    },
+  },
+  max_width = nil,
+  max_height = nil,
+  max_width_window_percentage = nil,
+  max_height_window_percentage = 50,
+  window_overlap_clear_enabled = false, -- toggles images when windows are overlapped
+  window_overlap_clear_ft_ignore = { 'cmp_menu', 'cmp_docs', '' },
+  editor_only_render_when_focused = false, -- auto show/hide images when the editor gains/looses focus
+  tmux_show_only_in_active_window = false, -- auto show/hide images in the correct Tmux window (needs visual-activity off)
+  hijack_file_patterns = { '*.png', '*.jpg', '*.jpeg', '*.gif', '*.webp', '*.avif' }, -- render image files as images when opened
+}
