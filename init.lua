@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -229,7 +229,6 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -255,6 +254,29 @@ require('lazy').setup({
       },
     },
   },
+  {
+    'numToStr/Comment.nvim',
+    opts = {
+      -- add any options here
+    },
+  },
+  {
+    'romgrk/barbar.nvim',
+    dependencies = {
+      'lewis6991/gitsigns.nvim', -- OPTIONAL: for git status
+      'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
+    },
+    init = function()
+      vim.g.barbar_auto_setup = false
+    end,
+    opts = {
+      -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
+      -- animation = true,
+      -- insert_at_start = true,
+      -- …etc.
+    },
+    version = '^1.0.0', -- optional: only update when a new 1.x version is released
+  },
   { 'catppuccin/nvim', name = 'catppuccin', priority = 1000 },
   { 'ellisonleao/gruvbox.nvim', priority = 1000, config = true },
   {
@@ -274,6 +296,9 @@ require('lazy').setup({
     opts = {
       rocks = { 'magick' },
     },
+  },
+  {
+    'mg979/vim-visual-multi',
   },
   {
     '3rd/image.nvim',
@@ -826,7 +851,6 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
@@ -948,38 +972,6 @@ require('lazy').setup({
   },
 })
 
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
-
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
-
-vim.api.nvim_set_keymap('n', '<c-p>', ':Telescope find_files<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<Tab>', ':+tabnext<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<S-Tab>', ':-tabnext<CR>', { noremap = true, silent = true })
-
-vim.api.nvim_set_keymap('n', '<c-q>', ':w<CR>:sp term://bash<CR>:res 10<CR>i', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('t', '<c-q>', '<c-\\><c-n>', { noremap = true, silent = true })
-
-vim.api.nvim_set_keymap('n', '<c-h>', '<c-w>h', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<c-j>', '<c-w>j', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<c-k>', '<c-w>k', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<c-l>', '<c-w>l', { noremap = true, silent = true })
-
-vim.api.nvim_set_keymap('t', '<c-h>', '<c-\\><c-n><c-w>h', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('t', '<c-j>', '<c-\\><c-n><c-w>j', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('t', '<c-k>', '<c-\\><c-n><c-w>k', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('t', '<c-l>', '<c-\\><c-n><c-w>l', { noremap = true, silent = true })
-
-vim.api.nvim_set_hl(0, 'Comment', { fg = '#679fdc' })
-vim.api.nvim_set_hl(0, '@comment', { link = 'Comment' })
-vim.api.nvim_set_hl(0, 'LineNrAbove', { link = 'Comment' })
-vim.api.nvim_set_hl(0, 'LineNr', { link = 'Comment' })
-vim.api.nvim_set_hl(0, 'LineNrBelow', { link = 'Comment' })
-
-vim.api.nvim_set_option('clipboard', 'unnamed')
-
 require('image').setup {
   backend = 'kitty',
   integrations = {
@@ -1014,3 +1006,101 @@ require('image').setup {
   tmux_show_only_in_active_window = false, -- auto show/hide images in the correct Tmux window (needs visual-activity off)
   hijack_file_patterns = { '*.png', '*.jpg', '*.jpeg', '*.gif', '*.webp', '*.avif' }, -- render image files as images when opened
 }
+
+local map = vim.api.nvim_set_keymap
+local opts = { noremap = true, silent = true }
+
+-- Move to previous/next
+map('n', '<S-Tab>', '<Cmd>BufferPrevious<CR>', opts)
+map('n', '<Tab>', '<Cmd>BufferNext<CR>', opts)
+-- Re-order to previous/next
+map('n', '<A-<>', '<Cmd>BufferMovePrevious<CR>', opts)
+map('n', '<A->>', '<Cmd>BufferMoveNext<CR>', opts)
+-- Goto buffer in position...
+map('n', '<A-1>', '<Cmd>BufferGoto 1<CR>', opts)
+map('n', '<A-2>', '<Cmd>BufferGoto 2<CR>', opts)
+map('n', '<A-3>', '<Cmd>BufferGoto 3<CR>', opts)
+map('n', '<A-4>', '<Cmd>BufferGoto 4<CR>', opts)
+map('n', '<A-5>', '<Cmd>BufferGoto 5<CR>', opts)
+map('n', '<A-6>', '<Cmd>BufferGoto 6<CR>', opts)
+map('n', '<A-7>', '<Cmd>BufferGoto 7<CR>', opts)
+map('n', '<A-8>', '<Cmd>BufferGoto 8<CR>', opts)
+map('n', '<A-9>', '<Cmd>BufferGoto 9<CR>', opts)
+map('n', '<A-0>', '<Cmd>BufferLast<CR>', opts)
+-- Pin/unpin buffer
+map('n', '<A-p>', '<Cmd>BufferPin<CR>', opts)
+-- Close buffer
+map('n', '<A-c>', '<Cmd>BufferClose<CR>', opts)
+-- Wipeout buffer
+--                 :BufferWipeout
+-- Close commands
+--                 :BufferCloseAllButCurrent
+--                 :BufferCloseAllButPinned
+--                 :BufferCloseAllButCurrentOrPinned
+--                 :BufferCloseBuffersLeft
+--                 :BufferCloseBuffersRight
+-- Magic buffer-picking mode
+map('n', '<C-p>', '<Cmd>BufferPick<CR>', opts)
+-- Sort automatically by...
+map('n', '<Space>bb', '<Cmd>BufferOrderByBufferNumber<CR>', opts)
+map('n', '<Space>bn', '<Cmd>BufferOrderByName<CR>', opts)
+map('n', '<Space>bd', '<Cmd>BufferOrderByDirectory<CR>', opts)
+map('n', '<Space>bl', '<Cmd>BufferOrderByLanguage<CR>', opts)
+map('n', '<Space>bw', '<Cmd>BufferOrderByWindowNumber<CR>', opts)
+
+-- Other:
+-- :BarbarEnable - enables barbar (enabled by default)
+-- :BarbarDisable - very bad command, should never be used
+
+-- The line beneath this is called `modeline`. See `:help modeline`
+-- vim: ts=2 sts=2 sw=2 et
+--
+
+require('tokyonight').setup {
+  transparent = true, -- Enable this to disable setting the background color
+  terminal_colors = true,
+  styles = {
+    sidebars = 'transparent',
+    floats = 'transparent',
+  },
+}
+
+vim.api.nvim_set_keymap('n', '<c-p>', ':Telescope find_files<CR>', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('n', '<c-q>', ':w<CR>:sp term://bash<CR>:res 10<CR>i', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<c-q>', '<c-\\><c-n>', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('n', '<c-h>', '<c-w>h', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<c-j>', '<c-w>j', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<c-k>', '<c-w>k', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<c-l>', '<c-w>l', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('t', '<c-h>', '<c-\\><c-n><c-w>h', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<c-j>', '<c-\\><c-n><c-w>j', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<c-k>', '<c-\\><c-n><c-w>k', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('t', '<c-l>', '<c-\\><c-n><c-w>l', { noremap = true, silent = true })
+
+vim.cmd.colorscheme 'tokyonight-night'
+
+vim.api.nvim_set_hl(0, 'Comment', { fg = '#679fdc' })
+vim.api.nvim_set_hl(0, '@comment', { link = 'Comment' })
+vim.api.nvim_set_hl(0, 'LineNrAbove', { link = 'Comment' })
+vim.api.nvim_set_hl(0, 'LineNr', { link = 'Comment' })
+vim.api.nvim_set_hl(0, 'LineNrBelow', { link = 'Comment' })
+
+vim.g.neovide_transparency = 0
+vim.g.transparency = 0.88
+vim.g.neovide_background_color = ('#0f1117' .. string.format('%x', math.floor(((255 * vim.g.transparency) or 0.8))))
+vim.o.signcolumn = 'yes'
+
+vim.api.nvim_set_option('clipboard', 'unnamed')
+
+vim.g.editorconfig = false
+
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = false
+vim.opt.indentexpr = ''
+
+local ft = require 'Comment.ft'
